@@ -1,0 +1,34 @@
+* build TIP4P OM position
+*
+
+set segid = @IN1
+define tip4 sele segid @segid end
+set ntip4 = ?nsel
+set icnt = 1
+
+label loop
+   coor stat sele type oh2 .and. resid @icnt .and. segid @segid end
+   set xoh2 = ?xave
+   set yoh2 = ?yave
+   set zoh2 = ?zave
+
+   coor stat sele type h* .and. resid @icnt .and. segid @segid end
+   set xh2 = ?xave
+   set yh2 = ?yave
+   set zh2 = ?zave   
+
+   calc bisectorx = @xoh2 - @xh2
+   calc bisectory = @yoh2 - @yh2
+   calc bisectorz = @zoh2 - @zh2
+   calc r = sqrt(@bisectorx * @bisectorx + @bisectory * @bisectory + @bisectorz * @bisectorz)
+
+   calc omx = @xoh2 + @bisectorx / @r * 0.15
+   calc omy = @yoh2 + @bisectory / @r * 0.15
+   calc omz = @zoh2 + @bisectorz / @r * 0.15
+
+   coor set xdir @omx ydir @omy zdir @omz sele type om .and. resid @icnt .and. segid @segid end
+
+incr icnt by 1
+if icnt .le. @ntip4 goto loop
+
+return
